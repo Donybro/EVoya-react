@@ -1,0 +1,7 @@
+.wrapper{
+  @apply flex bg-grayPrimary h-screen
+}
+
+.content{
+  @apply w-full mt-[25px] mx-[25px] overflow-auto p-[25px] rounded-md bg-white
+}

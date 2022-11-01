@@ -1,0 +1,12 @@
+.sidebar{
+  @apply bg-white w-[350px] h-screen h-full shadow-md pt-[30px] px-[12px]
+}
+.titleWrapper{
+  @apply flex items-center gap-[12px]
+}
+.logo{
+  @apply w-[60px] h-[60px]
+}
+.title{
+  @apply text-primary text-[1em]
+}
