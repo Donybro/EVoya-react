@@ -5,6 +5,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { IAuth } from "./auth.interface";
 import classNames from "classnames";
+import { useAction } from "../../hooks/useAction";
 
 const AuthForm: FC = () => {
   const schema = yup
@@ -21,9 +22,9 @@ const AuthForm: FC = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-
+  const { auth } = useAction();
   const onSubmit = async (data: IAuth) => {
-    console.log(data);
+    await auth(data);
   };
 
   return (

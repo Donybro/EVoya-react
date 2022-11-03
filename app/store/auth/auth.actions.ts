@@ -4,8 +4,16 @@ import { IAuth } from "../../components/Auth/auth.interface";
 
 export const auth = createAsyncThunk(
   "auth/auth",
-  async (thunkAPI, data: IAuth) => {
-    const response = await AuthService.auth(data);
-    return response.data;
+  async (data: IAuth, thunkAPI) => {
+    const {
+      data: { Success },
+    } = await AuthService.auth(data);
+    if (Success) {
+      await thunkAPI.dispatch(me());
+    }
   }
 );
+export const me = createAsyncThunk("auth/me", async (thunkAPI) => {
+  const resp = await AuthService.me();
+  return resp?.data;
+});

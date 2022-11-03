@@ -28,10 +28,10 @@ export const regionsSlice = createSlice({
     //     state.regionsList = action.payload
     // },
   },
-  extraReducers: {
-    [fetchRegionsList.fulfilled]: (state, action) => {
+  extraReducers: (builder) => {
+    builder.addCase(fetchRegionsList.fulfilled, (state, action) => {
       state.regionsList = action.payload;
-    },
+    });
   },
 });
 

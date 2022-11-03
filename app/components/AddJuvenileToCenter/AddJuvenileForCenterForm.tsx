@@ -1,7 +1,6 @@
 import { FC } from "react";
 import Select from "react-select";
 import { Controller, useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
 import { fetchRegionsList } from "../../store/regions/regions.actions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useAction } from "../../hooks/useAction";
@@ -18,7 +17,6 @@ const AddJuvenileForCenterForm: FC = () => {
       select: {},
     },
   });
-  const dispatch = useDispatch();
   const onSubmit = (data: any) => console.log(data);
   const regionsList = useTypedSelector((state) => state.regions.regionsList);
   const { fetchRegionsList } = useAction();
