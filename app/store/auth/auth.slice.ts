@@ -1,41 +1,42 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { me } from "./auth.actions";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { auth } from "./auth.actions";
 
-export interface IUser {
+export interface IAuth {
+  isAuthorized?: Boolean;
   isLoading?: Boolean;
-  authorized: Boolean;
-  full_name_position: String;
-  position: String;
-  region: String;
-  username: String;
+  error: String;
 }
-const initialState: IUser = {
+
+const initialState: IAuth = {
   isLoading: false,
-  authorized: false,
-  full_name_position: "",
-  position: "",
-  region: "",
-  username: "",
+  isAuthorized: false,
+  error: "",
 };
 
 export const authSlice = createSlice({
   name: "auth",
   initialState: initialState,
-  reducers: {},
+  reducers: {
+    setUserAuthorization: (state: IAuth, action: PayloadAction<Boolean>) => {
+      state.isLoading = false;
+      state.isAuthorized = action.payload;
+    },
+  },
   extraReducers: {
-    [me.pending]: (state) => {
+    [auth.pending.type]: (state: IAuth) => {
       state.isLoading = true;
     },
-    [me.fulfilled]: (state, action) => {
-      console.log(state);
-      console.log(action.payload);
-      state = action.payload;
-    },
-    [me.rejected]: (state) => {
+    [auth.fulfilled.type]: (state: IAuth) => {
       state.isLoading = false;
+      state.isAuthorized = true;
+    },
+    [auth.rejected.type]: (state: IAuth, action: PayloadAction<String>) => {
+      state.isLoading = false;
+      state.isAuthorized = false;
+      state.error = action.payload;
     },
   },
 });
-export const {} = authSlice.actions;
+export const { setUserAuthorization } = authSlice.actions;
 
 export default authSlice.reducer;

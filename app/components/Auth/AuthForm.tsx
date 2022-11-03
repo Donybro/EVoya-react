@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import styles from "./Auth.module.scss";
 import * as yup from "yup";
@@ -6,6 +6,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { IAuth } from "./auth.interface";
 import classNames from "classnames";
 import { useAction } from "../../hooks/useAction";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { useRouter } from "next/router";
 
 const AuthForm: FC = () => {
   const schema = yup
@@ -22,10 +24,21 @@ const AuthForm: FC = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
+
+  const { isAuthorized } = useTypedSelector((state) => state.auth);
   const { auth } = useAction();
+
+  const router = useRouter();
+
   const onSubmit = async (data: IAuth) => {
     await auth(data);
   };
+
+  useEffect(() => {
+    if (isAuthorized) {
+      router.push("/");
+    }
+  }, [isAuthorized]);
 
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
@@ -48,7 +61,6 @@ const AuthForm: FC = () => {
         />
         <div>{errors?.password && <div>{errors.password.message}</div>}</div>
       </div>
-
       <button className={classNames(styles.button)} type="submit">
         Kirish
       </button>
