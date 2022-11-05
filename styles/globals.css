@@ -2,10 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-* {
-    font-family: Poppins, sans-serif;
+
+.base_input{
+    @apply box-border bg-white placeholder:text-[#c5c5c5] py-[5px] px-[10px] text-base rounded-md border border-[#c5c5c5] focus:outline focus:outline-offset-[2px] focus:outline-[2px] focus:outline-[#1b80ce];
 }
-.btn-primary {
-    @apply py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
-}
+

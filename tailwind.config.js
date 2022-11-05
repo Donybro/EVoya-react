@@ -7,13 +7,13 @@ module.exports = {
   ],
   theme: {
     extend: {
-      colors:{
-        primary: '#193751',
-        grayPrimary: '#F5F5F5'
-      }
+      colors: {
+        primary: "#193751",
+        primary2: "#1b80ce",
+        grayPrimary: "#F5F5F5",
+      },
     },
   },
-  plugins: [
-    require('@tailwindcss/line-clamp'),
-  ],
-}
+  plugins: [require("@tailwindcss/line-clamp")],
+  important: true,
+};

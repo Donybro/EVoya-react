@@ -18,3 +18,10 @@ export const auth = createAsyncThunk(
     }
   }
 );
+export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
+  try {
+    const { data } = await AuthService.logout();
+  } catch (e) {
+    return thunkAPI.rejectWithValue("Auth Something get wrong");
+  }
+});

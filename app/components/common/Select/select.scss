@@ -1,0 +1,24 @@
+.custom-select {
+  &__value-container{
+    padding: 0px !important;
+    margin: 0px !important;
+  }
+  //&__control--is-focused {
+  //  box-shadow: 2px 2px 1px #1b80ce;
+  //  outline-offset: 2px !important;
+  //  outline-width: 2px !important;
+  //  outline-color: #1b80ce !important;
+  //}
+  &__control{
+    min-height: 0px !important;
+    border-radius: 8px !important;
+    border-color: #c5c5c5 !important;
+  }
+  &__single-value{
+    color: black !important;
+  }
+  &__input-container{
+    padding: 0px !important;
+    margin: 0px !important;
+  }
+}
