@@ -17,6 +17,7 @@ export default function useDistricts() {
     }
   );
   return {
+    setDistrictsList,
     setRegionId,
     districtsList,
     isLoading,

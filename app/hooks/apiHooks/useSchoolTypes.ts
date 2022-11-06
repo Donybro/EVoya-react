@@ -4,7 +4,7 @@ import { Other_infoService } from "../../services/info/other_info.service";
 import { ISchoolType } from "../../types/school.type";
 
 export default function useSchoolTypes() {
-  const [schoolTypes, setSchoolTypes] = useState<ISchoolType[]>([]);
+  const [schoolTypesList, setSchoolTypes] = useState<ISchoolType[]>([]);
   const { isLoading } = useQuery(
     "school-Types",
     () => Other_infoService.getSchoolTypes(),
@@ -15,7 +15,7 @@ export default function useSchoolTypes() {
     }
   );
   return {
-    schoolTypes,
+    schoolTypesList,
     isLoading,
   };
 }
