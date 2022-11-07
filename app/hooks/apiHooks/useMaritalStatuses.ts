@@ -4,7 +4,9 @@ import { Other_infoService } from "../../services/info/other_info.service";
 import { IMaritalStatus } from "../../types/marital-status.type";
 
 export default function useMaritalStatuses() {
-  const [maritalStatuses, setMaritalStatuses] = useState<IMaritalStatus[]>([]);
+  const [maritalStatusesList, setMaritalStatuses] = useState<IMaritalStatus[]>(
+    []
+  );
   const { isLoading } = useQuery(
     "marital-statuses",
     () => Other_infoService.getMaritalStatuses(),
@@ -15,7 +17,7 @@ export default function useMaritalStatuses() {
     }
   );
   return {
-    maritalStatuses,
+    maritalStatusesList,
     isLoading,
   };
 }

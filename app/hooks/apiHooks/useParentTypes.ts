@@ -1,21 +1,24 @@
 import { useQuery } from "react-query";
-import { useState } from "react";
 import { Other_infoService } from "../../services/info/other_info.service";
 import { IParentType } from "../../types/parent.type";
 
 export default function useParentTypes() {
-  const [parentTypes, setParentTypes] = useState<IParentType[]>([]);
-  const { isLoading } = useQuery(
+  const { isLoading, data } = useQuery(
     "parent-types",
     () => Other_infoService.getParentTypes(),
     {
-      onSuccess: ({ data }) => {
-        setParentTypes(data);
+      select: ({ data }) => {
+        const parentList = data.map((item: IParentType) => ({
+          label: item.text,
+          value: item.id,
+        }));
+        return parentList;
       },
     }
   );
+
   return {
-    parentTypes,
+    data,
     isLoading,
   };
 }
