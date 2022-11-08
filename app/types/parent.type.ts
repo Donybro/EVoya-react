@@ -1,5 +1,5 @@
 export interface IParentType {
-  id: string;
+  id: number;
   text: string;
 }
 export interface IParent {
@@ -8,7 +8,10 @@ export interface IParent {
   father_name: string;
   pinfl: string;
   employment: string;
-  parent_type: string;
+  parent_type: {
+    label: string;
+    value: number;
+  };
   birth_date: Date;
 }
 

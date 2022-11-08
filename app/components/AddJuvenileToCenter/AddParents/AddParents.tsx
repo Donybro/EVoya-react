@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import useParentTypes from "../../../hooks/apiHooks/useParentTypes";
 import styles from "../AddJuvenileForCenterForm.module.scss";
@@ -7,32 +7,57 @@ import { IParent } from "../../../types/parent.type";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 
-const AddParents: FC = () => {
+const defaultFormValues = {
+  last_name: "",
+  first_name: "",
+  father_name: "",
+  birth_date: undefined,
+  pinfl: "",
+  employment: "",
+  parent_type: undefined,
+};
+interface IAddParentsProps {
+  maritalStatus: number | undefined;
+}
+const AddParents: FC<IAddParentsProps> = ({
+  maritalStatus,
+}: IAddParentsProps) => {
   const {
     control,
     handleSubmit,
     register,
     watch,
     getValues,
+    reset,
+    resetField,
     setValue,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      last_name: "",
-      first_name: "",
-      father_name: "",
-      birth_date: undefined,
-      pinfl: "",
-      employment: "",
-      parent_type: "",
-    },
-  });
-  const { data } = useParentTypes();
+    formState: { errors, isSubmitSuccessful },
+  } = useForm();
+  const { parentTypesList } = useParentTypes();
   const onSubmit = (data: IParent) => {
+    reset();
     setParentsList([...parentsList, data]);
   };
 
   const [parentsList, setParentsList] = useState<IParent[]>([]);
+  const [filteredParentTypes, setFilteredParentTypes] = useState<IParent[]>([]);
+
+  useEffect(() => {
+    setFilteredParentTypes(parentTypesList);
+  }, [parentTypesList]);
+
+  useEffect(() => {
+    if (filteredParentTypes.length) {
+      const usedParentTypes = [...parentsList.map((p) => p.parent_type.value)];
+      delete usedParentTypes[usedParentTypes.indexOf(3)];
+      const filtered = parentTypesList.filter(
+        (type: any) => !usedParentTypes.includes(type.value)
+      );
+      setFilteredParentTypes(filtered);
+    } else {
+      setFilteredParentTypes([]);
+    }
+  }, [parentsList]);
 
   return (
     <div>
@@ -51,7 +76,7 @@ const AddParents: FC = () => {
                 instanceId="parent_type"
                 placeholder={"Boquvchining turini tanlang"}
                 classNamePrefix={"custom-select"}
-                options={data}
+                options={filteredParentTypes}
               />
             )}
           />
@@ -135,7 +160,7 @@ const AddParents: FC = () => {
               Full Name:
               {`${parent.first_name} ${parent.last_name} ${parent.father_name}`}
             </div>
-            <div>Type: {parent.parent_type}</div>
+            <div>Type: {parent.parent_type.label}</div>
             <div>pinfl: {parent.pinfl}</div>
           </div>
         ))}

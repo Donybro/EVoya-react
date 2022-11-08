@@ -10,3 +10,9 @@
 .title{
   @apply text-primary text-[1em]
 }
+.linksWrapper{
+  @apply  mt-[45px] flex flex-col gap-[12px]
+}
+.link{
+ @apply px-[12px] py-[8px] hover:bg-gray-200 rounded-[8px] text-gray-500
+}

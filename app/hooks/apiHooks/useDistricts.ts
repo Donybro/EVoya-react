@@ -4,22 +4,24 @@ import { useState } from "react";
 import { IDistrict } from "../../types/region-district.type";
 
 export default function useDistricts() {
-  const [districtsList, setDistrictsList] = useState<IDistrict[]>([]);
   const [regionId, setRegionId] = useState<string>("");
-  const { isLoading } = useQuery(
+  const { data, isLoading } = useQuery(
     ["districts-list", regionId],
     () => RegionsService.getDistrictsListByRegionId(regionId),
     {
-      onSuccess: ({ data }) => {
-        setDistrictsList(data);
+      select: ({ data }) => {
+        return data.map((item: IDistrict) => ({
+          ...item,
+          label: item.name,
+          value: item.id,
+        }));
       },
       enabled: !!regionId,
     }
   );
   return {
-    setDistrictsList,
     setRegionId,
-    districtsList,
+    districtsList: data,
     isLoading,
   };
 }

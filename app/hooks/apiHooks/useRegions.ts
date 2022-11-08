@@ -1,21 +1,23 @@
 import { useQuery } from "react-query";
 import { RegionsService } from "../../services/info/regions.service";
-import { useState } from "react";
 import { IRegion } from "../../types/region-district.type";
 
 export default function useRegions() {
-  const [regionsList, setRegionsList] = useState<IRegion[]>([]);
-  const { isLoading } = useQuery(
+  const { data, isLoading } = useQuery(
     "regions-list",
     () => RegionsService.getRegionsList(),
     {
-      onSuccess: ({ data }) => {
-        setRegionsList(data);
+      select: ({ data }) => {
+        return data.map((item: IRegion) => ({
+          ...item,
+          label: item.name,
+          value: item.id,
+        }));
       },
     }
   );
   return {
-    regionsList,
+    regionsList: data,
     isLoading,
   };
 }

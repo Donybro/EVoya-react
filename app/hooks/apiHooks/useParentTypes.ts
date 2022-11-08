@@ -8,17 +8,16 @@ export default function useParentTypes() {
     () => Other_infoService.getParentTypes(),
     {
       select: ({ data }) => {
-        const parentList = data.map((item: IParentType) => ({
+        return data.map((item: IParentType) => ({
           label: item.text,
           value: item.id,
         }));
-        return parentList;
       },
     }
   );
 
   return {
-    data,
+    parentTypesList: data,
     isLoading,
   };
 }

@@ -8,7 +8,7 @@ export interface IButtonGroupOptions {
 
 export interface IButtonGroupProps {
   options: IButtonGroupOptions[];
-  setValue: SetStateAction<IButtonGroupOptions>;
+  setValue: SetStateAction;
   selectedValue: any;
 }
 

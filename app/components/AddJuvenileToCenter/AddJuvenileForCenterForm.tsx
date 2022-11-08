@@ -3,19 +3,18 @@ import Select from "react-select";
 import { Controller, useForm } from "react-hook-form";
 import styles from "./AddJuvenileForCenterForm.module.scss";
 import useRegions from "../../hooks/apiHooks/useRegions";
-import { IRegion } from "../../types/region-district.type";
 import useDocumentTypes from "../../hooks/apiHooks/useDocumentTypes";
-import { IDocumentType } from "../../types/document.type";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import useDistricts from "../../hooks/apiHooks/useDistricts";
 import ButtonGroup from "../common/ButtonGroup/ButtonGroup";
 import useSchoolTypes from "../../hooks/apiHooks/useSchoolTypes";
-import { ISchoolType } from "../../types/school.type";
 import { useDropzone } from "react-dropzone";
 import useMaritalStatuses from "../../hooks/apiHooks/useMaritalStatuses";
-import { IMaritalStatus } from "../../types/marital-status.type";
 import AddParents from "./AddParents/AddParents";
+import useAddJuvenileToCenterFormValidation from "../../hooks/validations/useAddJuvenileToCenterForm.validation";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 const btnGroupGenders = [
   {
@@ -29,6 +28,13 @@ const btnGroupGenders = [
 ];
 
 const AddJuvenileForCenterForm: FC = () => {
+  const schema = yup
+    .object({
+      firstName: yup.string().required(),
+      age: yup.number().positive().integer().required(),
+    })
+    .required();
+
   const {
     control,
     handleSubmit,
@@ -38,8 +44,9 @@ const AddJuvenileForCenterForm: FC = () => {
     setValue,
     formState: { errors },
   } = useForm({
+    resolver: yupResolver(schema),
     defaultValues: {
-      passport_type: "",
+      passport_type: undefined,
       passport_seria: "",
       birth_region: "",
       birth_district: "",
@@ -52,19 +59,34 @@ const AddJuvenileForCenterForm: FC = () => {
       address_region: "",
       address_district: "",
       address: "",
-      school_type: "",
+      school_type: undefined,
       school_region: "",
       school_district: "",
       school_name: "",
-      marital_status: "",
+      marital_status: undefined,
       parent_type: "",
       reference_type: undefined,
+      photo: undefined,
     },
   });
 
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
+  const {
+    acceptedFiles: acceptedReferenceFiles,
+    getRootProps: getRootPropsReference,
+    getInputProps: getInputPropsReference,
+  } = useDropzone();
+  const {
+    acceptedFiles: acceptedPhotoFiles,
+    getRootProps: getRootPropsPhoto,
+    getInputProps: getInputPropsPhoto,
+  } = useDropzone();
 
-  const files = acceptedFiles.map((file) => (
+  const filesReference = acceptedReferenceFiles.map((file) => (
+    <li key={file.path}>
+      {file.path} - {file.size} bytes
+    </li>
+  ));
+  const filesPhoto = acceptedPhotoFiles.map((file) => (
     <li key={file.path}>
       {file.path} - {file.size} bytes
     </li>
@@ -78,7 +100,15 @@ const AddJuvenileForCenterForm: FC = () => {
   const { schoolTypesList } = useSchoolTypes();
   const { maritalStatusesList } = useMaritalStatuses();
   const [juvenileGender, setJuvenileGender] = useState(null);
-
+  const {
+    setPassportType,
+    otherDocTypesSelected,
+    setSchoolType,
+    workingOrNotWorkingNotStudyingTypeSelected,
+    maritalStatus,
+    setMaritalStatus,
+    hasNotAnybody,
+  } = useAddJuvenileToCenterFormValidation();
   const {
     districtsList: birthDistrictList,
     isLoading: districtsListIsLoading,
@@ -114,12 +144,20 @@ const AddJuvenileForCenterForm: FC = () => {
     setSchoolRegionId(school_region.id);
   }, [watch("school_region")]);
 
-  const fields = [
-    {
-      type: "text",
-      name: "name",
-    },
-  ];
+  useEffect(() => {
+    const passport_type = getValues("passport_type");
+    setPassportType(passport_type);
+  }, [watch("passport_type")]);
+
+  useEffect(() => {
+    const school_type = getValues("school_type");
+    setSchoolType(school_type);
+  }, [watch("school_type")]);
+
+  useEffect(() => {
+    const marital_status = getValues("marital_status");
+    setMaritalStatus(marital_status);
+  }, [watch("marital_status")]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -138,22 +176,54 @@ const AddJuvenileForCenterForm: FC = () => {
                 {...field}
                 instanceId="select"
                 placeholder="Hujjat turini tanlang"
-                getOptionLabel={(option: IDocumentType) => option.text}
-                getOptionValue={(option: IDocumentType) => option.id}
                 classNamePrefix={"custom-select"}
                 options={documentTypes}
               />
             )}
           />
         </div>
-        <div className={styles.fieldWrapper}>
-          <label htmlFor="passport_seria">Seria raqami</label>
-          <input
-            className="base_input"
-            id="passport_seria"
-            {...register("passport_seria", { required: true })}
-          />
-        </div>
+        {!otherDocTypesSelected && (
+          <div className={styles.fieldWrapper}>
+            <label htmlFor="passport_seria">Seria raqami</label>
+            <input
+              placeholder={"Seriya raqamini kiriting"}
+              className="base_input"
+              id="passport_seria"
+              {...register("passport_seria", { required: true })}
+            />
+          </div>
+        )}
+        {otherDocTypesSelected && (
+          <div className={styles.fieldWrapper}>
+            <label htmlFor="reference_type">Ma'lumotnoma </label>
+            <Controller
+              name={"reference_type"}
+              control={control}
+              rules={{
+                required: true,
+              }}
+              render={({ field }) => (
+                <section className="shadow flex flex-col gap-[12px]">
+                  <div
+                    {...field}
+                    {...getRootPropsReference({ className: "dropzone" })}
+                  >
+                    <input
+                      id={"reference_type"}
+                      {...getInputPropsReference()}
+                    />
+                    <p className={"base_input cursor-pointer"}>
+                      Ma'lumotnomani yuklang
+                    </p>
+                  </div>
+                  <aside className={"px-[8px] py-[4px]"}>
+                    <ul>{filesReference}</ul>
+                  </aside>
+                </section>
+              )}
+            />
+          </div>
+        )}
         <div className={styles.fieldWrapper}>
           <label htmlFor="last_name">Familiya</label>
           <input
@@ -163,6 +233,7 @@ const AddJuvenileForCenterForm: FC = () => {
             {...register("last_name", { required: true })}
           />
         </div>
+
         <div className={styles.fieldWrapper}>
           <label htmlFor="first_name">Ismi</label>
           <input
@@ -193,7 +264,7 @@ const AddJuvenileForCenterForm: FC = () => {
               <DatePicker
                 {...field}
                 dateFormat="dd.MM.yyyy"
-                placeholder={"Sanani tanlang"}
+                placeholderText={"Sanani tanlang"}
                 className={"border border-[#ccc]"}
                 id={"birth_date"}
                 selected={getValues("birth_date")}
@@ -211,8 +282,6 @@ const AddJuvenileForCenterForm: FC = () => {
                 {...field}
                 instanceId="birth_region"
                 placeholder={"Viloyatni tanlang"}
-                getOptionLabel={(option: IRegion) => option.name}
-                getOptionValue={(option: IRegion) => option.id}
                 classNamePrefix={"custom-select"}
                 options={regionsList}
               />
@@ -229,8 +298,6 @@ const AddJuvenileForCenterForm: FC = () => {
                 {...field}
                 instanceId="birth_district"
                 placeholder={"Tumanni tanlang"}
-                getOptionLabel={(option: IRegion) => option.name}
-                getOptionValue={(option: IRegion) => option.id}
                 classNamePrefix={"custom-select"}
                 options={birthDistrictList}
               />
@@ -255,23 +322,24 @@ const AddJuvenileForCenterForm: FC = () => {
           />
         </div>
         <div className={styles.fieldWrapper}>
-          <label htmlFor="reference_type">Ma'lumotnoma</label>
+          <label htmlFor="photo">Rasm</label>
           <Controller
-            name={"reference_type"}
+            name={"photo"}
             control={control}
             rules={{
               required: true,
             }}
             render={({ field }) => (
               <section className="shadow flex flex-col gap-[12px]">
-                <div {...field} {...getRootProps({ className: "dropzone" })}>
-                  <input id={"reference_type"} {...getInputProps()} />
-                  <p className={"base_input cursor-pointer"}>
-                    Ma'lumotnomani yuklang
-                  </p>
+                <div
+                  {...field}
+                  {...getRootPropsPhoto({ className: "dropzone" })}
+                >
+                  <input id={"photo"} {...getInputPropsPhoto()} />
+                  <p className={"base_input cursor-pointer"}>Rasm yuklang</p>
                 </div>
                 <aside className={"px-[8px] py-[4px]"}>
-                  <ul>{files}</ul>
+                  <ul>{filesPhoto}</ul>
                 </aside>
               </section>
             )}
@@ -290,8 +358,6 @@ const AddJuvenileForCenterForm: FC = () => {
                 {...field}
                 instanceId="birth_region"
                 placeholder={"Viloyatni tanlang"}
-                getOptionLabel={(option: IRegion) => option.name}
-                getOptionValue={(option: IRegion) => option.id}
                 classNamePrefix={"custom-select"}
                 options={addressRegionsList}
               />
@@ -311,8 +377,6 @@ const AddJuvenileForCenterForm: FC = () => {
                 {...field}
                 instanceId="address_district"
                 placeholder={"Tumanni tanlang"}
-                getOptionLabel={(option: IRegion) => option.name}
-                getOptionValue={(option: IRegion) => option.id}
                 classNamePrefix={"custom-select"}
                 options={addressDistrictList}
               />
@@ -341,62 +405,60 @@ const AddJuvenileForCenterForm: FC = () => {
                 {...field}
                 instanceId="school_type"
                 placeholder={"Ta`lim muassasini turini tanlang"}
-                getOptionLabel={(option: ISchoolType) => option.text}
-                getOptionValue={(option: ISchoolType) => option.id}
                 classNamePrefix={"custom-select"}
                 options={schoolTypesList}
               />
             )}
           />
         </div>
-        <div className={styles.fieldWrapper}>
-          <label htmlFor="school_region"> Viloyat / Shahar </label>
-          <Controller
-            name="school_region"
-            control={control}
-            render={({ field }) => (
-              <Select
-                {...field}
-                instanceId="school_region"
-                placeholder={"Viloyatni tanlang"}
-                getOptionLabel={(option: IRegion) => option.name}
-                getOptionValue={(option: IRegion) => option.id}
-                classNamePrefix={"custom-select"}
-                options={schoolRegionsList}
+        {!workingOrNotWorkingNotStudyingTypeSelected && (
+          <>
+            <div className={styles.fieldWrapper}>
+              <label htmlFor="school_region"> Viloyat / Shahar </label>
+              <Controller
+                name="school_region"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    instanceId="school_region"
+                    placeholder={"Viloyatni tanlang"}
+                    classNamePrefix={"custom-select"}
+                    options={schoolRegionsList}
+                  />
+                )}
               />
-            )}
-          />
-        </div>
-        <div className={styles.fieldWrapper}>
-          <label htmlFor="school_district"> Tumani </label>
-          <Controller
-            name="school_district"
-            control={control}
-            render={({ field }) => (
-              <Select
-                {...field}
-                instanceId="school_district"
-                placeholder={"Tumanni tanlang"}
-                getOptionLabel={(option: IRegion) => option.name}
-                getOptionValue={(option: IRegion) => option.id}
-                classNamePrefix={"custom-select"}
-                options={schoolDistrictList}
+            </div>
+            <div className={styles.fieldWrapper}>
+              <label htmlFor="school_district"> Tumani </label>
+              <Controller
+                name="school_district"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    instanceId="school_district"
+                    placeholder={"Tumanni tanlang"}
+                    classNamePrefix={"custom-select"}
+                    options={schoolDistrictList}
+                  />
+                )}
               />
-            )}
-          />
-        </div>
-        <div className={styles.fieldWrapper}>
-          <label htmlFor="school_name">Muassasa nomi (raqami)</label>
-          <input
-            className="base_input"
-            placeholder={"Ta`lim muassasini kiriting"}
-            id="school_name"
-            {...register("school_name", { required: true })}
-          />
-        </div>
+            </div>
+            <div className={styles.fieldWrapper}>
+              <label htmlFor="school_name">Muassasa nomi (raqami)</label>
+              <input
+                className="base_input"
+                placeholder={"Ta`lim muassasini kiriting"}
+                id="school_name"
+                {...register("school_name", { required: true })}
+              />
+            </div>
+          </>
+        )}
       </section>
       <h1 className={"text-3xl my-[12px]"}>
-        Bolaning boquvchisi haqida ma'lumotlar{" "}
+        Bolaning boquvchisi haqida ma'lumotlar
       </h1>
       <section className="mb-[38px]">
         <div className={styles.fieldWrapper}>
@@ -412,17 +474,14 @@ const AddJuvenileForCenterForm: FC = () => {
                 {...field}
                 instanceId="marital_status"
                 placeholder={"Holatini tanlang"}
-                getOptionLabel={(option: IMaritalStatus) => option.text}
-                getOptionValue={(option: IMaritalStatus) => option.id}
                 classNamePrefix={"custom-select"}
                 options={maritalStatusesList}
               />
             )}
           />
         </div>
-        <AddParents />
+        {!hasNotAnybody && <AddParents maritalStatus={maritalStatus} />}
       </section>
-
       <button className="" type="submit">
         Send
       </button>
