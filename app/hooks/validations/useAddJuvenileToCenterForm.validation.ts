@@ -7,7 +7,7 @@ export default function useAddJuvenileToCenterFormValidation() {
   const [passportType, setPassportType] = useState();
   const [otherDocTypesSelected, setOtherDocTypesSelected] = useState(false);
   useEffect(() => {
-    if (passportType?.value === ENUMDocumentType.OTHER_DOCS_TYPE) {
+    if (passportType === ENUMDocumentType.OTHER_DOCS_TYPE) {
       setOtherDocTypesSelected(true);
     } else {
       setOtherDocTypesSelected(false);
@@ -21,8 +21,8 @@ export default function useAddJuvenileToCenterFormValidation() {
   ] = useState(false);
   useEffect(() => {
     if (
-      schoolType?.value === ENUMSchoolType.IS_WORKING_TYPE ||
-      schoolType?.value === ENUMSchoolType.NO_WORKING_NO_STUDYING_TYPE
+      schoolType === ENUMSchoolType.IS_WORKING_TYPE ||
+      schoolType === ENUMSchoolType.NO_WORKING_NO_STUDYING_TYPE
     ) {
       setWorkingOrNotWorkingNotStudyingTypeSelected(true);
     } else {
@@ -34,7 +34,8 @@ export default function useAddJuvenileToCenterFormValidation() {
   const [hasNotAnybody, setHasNotAnybody] = useState(false);
 
   useEffect(() => {
-    if (maritalStatus?.value === ENUMMaritalStatusType.HAS_NOT_ANYBODY_TYPE) {
+    console.log(maritalStatus);
+    if (maritalStatus === ENUMMaritalStatusType.HAS_NOT_ANYBODY_TYPE) {
       setHasNotAnybody(true);
     } else {
       setHasNotAnybody(false);

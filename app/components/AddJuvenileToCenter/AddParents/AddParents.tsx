@@ -16,12 +16,8 @@ const defaultFormValues = {
   employment: "",
   parent_type: undefined,
 };
-interface IAddParentsProps {
-  maritalStatus: number | undefined;
-}
-const AddParents: FC<IAddParentsProps> = ({
-  maritalStatus,
-}: IAddParentsProps) => {
+interface IAddParentsProps {}
+const AddParents: FC<IAddParentsProps> = ({}: IAddParentsProps) => {
   const {
     control,
     handleSubmit,

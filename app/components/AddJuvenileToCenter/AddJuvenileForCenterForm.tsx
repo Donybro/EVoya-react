@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import Select from "react-select";
 import { Controller, useForm } from "react-hook-form";
 import styles from "./AddJuvenileForCenterForm.module.scss";
@@ -14,7 +14,17 @@ import useMaritalStatuses from "../../hooks/apiHooks/useMaritalStatuses";
 import AddParents from "./AddParents/AddParents";
 import useAddJuvenileToCenterFormValidation from "../../hooks/validations/useAddJuvenileToCenterForm.validation";
 import * as yup from "yup";
+import { date, mixed, number, string } from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import {
+  parentsAreRequiredValidationMessage,
+  requiredValidatorMessage,
+} from "./../../utils/validationMessages";
+
+interface IGender {
+  label: string;
+  value: string;
+}
 
 const btnGroupGenders = [
   {
@@ -26,15 +36,66 @@ const btnGroupGenders = [
     value: "F",
   },
 ];
-
 const AddJuvenileForCenterForm: FC = () => {
+  const {
+    setPassportType,
+    otherDocTypesSelected,
+    setSchoolType,
+    workingOrNotWorkingNotStudyingTypeSelected,
+    maritalStatus,
+    setMaritalStatus,
+    hasNotAnybody,
+  } = useAddJuvenileToCenterFormValidation();
+
   const schema = yup
     .object({
-      firstName: yup.string().required(),
-      age: yup.number().positive().integer().required(),
+      passport_type: number().required(requiredValidatorMessage),
+      passport_seria: otherDocTypesSelected
+        ? string()
+        : string().required(requiredValidatorMessage),
+      birth_region: string().required(requiredValidatorMessage),
+      birth_district: string().required(requiredValidatorMessage),
+      last_name: string().required(requiredValidatorMessage),
+      first_name: string().required(requiredValidatorMessage),
+      father_name: string().required(requiredValidatorMessage),
+      birth_date: date().required(requiredValidatorMessage),
+      pinfl: string().required(requiredValidatorMessage),
+      gender: string().required(requiredValidatorMessage),
+      address_region: string().required(requiredValidatorMessage),
+      address_district: string().required(requiredValidatorMessage),
+      address: string().required(requiredValidatorMessage),
+      school_type: number().required(requiredValidatorMessage),
+      school_region: workingOrNotWorkingNotStudyingTypeSelected
+        ? string()
+        : string().required(requiredValidatorMessage),
+      school_district: workingOrNotWorkingNotStudyingTypeSelected
+        ? string()
+        : string().required(requiredValidatorMessage),
+      school_name: workingOrNotWorkingNotStudyingTypeSelected
+        ? string()
+        : string().required(requiredValidatorMessage),
+      marital_status: number().required(requiredValidatorMessage),
+      reference_type: otherDocTypesSelected
+        ? mixed().required(requiredValidatorMessage)
+        : mixed(),
+      photo: mixed().required(requiredValidatorMessage),
+      parents: hasNotAnybody
+        ? string()
+        : string().required(parentsAreRequiredValidationMessage),
     })
     .required();
-
+  // array()
+  //     .of(
+  //         object().shape({
+  //             last_name: string(),
+  //             first_name: string(),
+  //             father_name: string(),
+  //             pinfl: string(),
+  //             employment: string(),
+  //             parent_type: number(),
+  //             birth_date: string(),
+  //         })
+  //     )
   const {
     control,
     handleSubmit,
@@ -45,6 +106,7 @@ const AddJuvenileForCenterForm: FC = () => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
+    mode: "onChange",
     defaultValues: {
       passport_type: undefined,
       passport_seria: "",
@@ -55,7 +117,7 @@ const AddJuvenileForCenterForm: FC = () => {
       father_name: "",
       birth_date: undefined,
       pinfl: "",
-      gender: btnGroupGenders[0],
+      gender: "",
       address_region: "",
       address_district: "",
       address: "",
@@ -64,9 +126,9 @@ const AddJuvenileForCenterForm: FC = () => {
       school_district: "",
       school_name: "",
       marital_status: undefined,
-      parent_type: "",
       reference_type: undefined,
       photo: undefined,
+      parents: "",
     },
   });
 
@@ -99,16 +161,7 @@ const AddJuvenileForCenterForm: FC = () => {
   const { documentTypes, isLoading: documentsIsLoading } = useDocumentTypes();
   const { schoolTypesList } = useSchoolTypes();
   const { maritalStatusesList } = useMaritalStatuses();
-  const [juvenileGender, setJuvenileGender] = useState(null);
-  const {
-    setPassportType,
-    otherDocTypesSelected,
-    setSchoolType,
-    workingOrNotWorkingNotStudyingTypeSelected,
-    maritalStatus,
-    setMaritalStatus,
-    hasNotAnybody,
-  } = useAddJuvenileToCenterFormValidation();
+
   const {
     districtsList: birthDistrictList,
     isLoading: districtsListIsLoading,
@@ -124,24 +177,23 @@ const AddJuvenileForCenterForm: FC = () => {
     isLoading: addressListIsLoading,
     setRegionId: setAddressRegionId,
   } = useDistricts();
-  // const [startDate, setStartDate] = useState(new Date());
 
   useEffect(() => {
     const birth_region = getValues("birth_region");
     setValue("birth_district", "");
-    setBirthRegionId(birth_region.id);
+    setBirthRegionId(birth_region);
   }, [watch("birth_region")]);
 
   useEffect(() => {
     const address_region = getValues("address_region");
     setValue("address_district", "");
-    setAddressRegionId(address_region.id);
+    setAddressRegionId(address_region);
   }, [watch("address_region")]);
 
   useEffect(() => {
     const school_region = getValues("school_region");
     setValue("school_district", "");
-    setSchoolRegionId(school_region.id);
+    setSchoolRegionId(school_region);
   }, [watch("school_region")]);
 
   useEffect(() => {
@@ -159,6 +211,9 @@ const AddJuvenileForCenterForm: FC = () => {
     setMaritalStatus(marital_status);
   }, [watch("marital_status")]);
 
+  console.log("Errors", errors);
+
+  console.log("Parents", getValues("parents"));
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <h1 className={"text-3xl my-[12px]"}>Shaxsiy ma'lumotlar </h1>
@@ -175,12 +230,21 @@ const AddJuvenileForCenterForm: FC = () => {
               <Select
                 {...field}
                 instanceId="select"
+                onChange={(newValue) => {
+                  field.onChange(newValue?.value);
+                }}
+                value={field?.label}
                 placeholder="Hujjat turini tanlang"
                 classNamePrefix={"custom-select"}
                 options={documentTypes}
               />
             )}
           />
+          {errors.passport_type && (
+            <span className={"error_message"}>
+              {errors.passport_type.message}
+            </span>
+          )}
         </div>
         {!otherDocTypesSelected && (
           <div className={styles.fieldWrapper}>
@@ -191,6 +255,11 @@ const AddJuvenileForCenterForm: FC = () => {
               id="passport_seria"
               {...register("passport_seria", { required: true })}
             />
+            {errors.passport_seria && (
+              <span className={"error_message"}>
+                {errors.passport_seria.message}
+              </span>
+            )}
           </div>
         )}
         {otherDocTypesSelected && (
@@ -222,6 +291,11 @@ const AddJuvenileForCenterForm: FC = () => {
                 </section>
               )}
             />
+            {errors.reference_type && (
+              <span className={"error_message"}>
+                {errors.reference_type.message}
+              </span>
+            )}
           </div>
         )}
         <div className={styles.fieldWrapper}>
@@ -232,6 +306,9 @@ const AddJuvenileForCenterForm: FC = () => {
             id="passport_seria"
             {...register("last_name", { required: true })}
           />
+          {errors.last_name && (
+            <span className={"error_message"}>{errors.last_name.message}</span>
+          )}
         </div>
 
         <div className={styles.fieldWrapper}>
@@ -242,6 +319,9 @@ const AddJuvenileForCenterForm: FC = () => {
             id="first_name"
             {...register("first_name", { required: true })}
           />
+          {errors.first_name && (
+            <span className={"error_message"}>{errors.first_name.message}</span>
+          )}
         </div>
         <div className={styles.fieldWrapper}>
           <label htmlFor="father_name"> Sharifi</label>
@@ -251,6 +331,11 @@ const AddJuvenileForCenterForm: FC = () => {
             id="father_name"
             {...register("father_name", { required: true })}
           />
+          {errors.father_name && (
+            <span className={"error_message"}>
+              {errors.father_name.message}
+            </span>
+          )}
         </div>
         <div className={styles.fieldWrapper}>
           <label htmlFor="birth_date"> Tug‘ilgan sanasi </label>
@@ -271,6 +356,9 @@ const AddJuvenileForCenterForm: FC = () => {
               />
             )}
           />
+          {errors.birth_date && (
+            <span className={"error_message"}>{errors.birth_date.message}</span>
+          )}
         </div>
         <div className={styles.fieldWrapper}>
           <label htmlFor="birth_region"> Tug'ilgan Viloyat / Shahar </label>
@@ -280,6 +368,10 @@ const AddJuvenileForCenterForm: FC = () => {
             render={({ field }) => (
               <Select
                 {...field}
+                onChange={(newValue) => {
+                  field.onChange(newValue?.value);
+                }}
+                value={field?.label}
                 instanceId="birth_region"
                 placeholder={"Viloyatni tanlang"}
                 classNamePrefix={"custom-select"}
@@ -287,6 +379,11 @@ const AddJuvenileForCenterForm: FC = () => {
               />
             )}
           />
+          {errors.birth_region && (
+            <span className={"error_message"}>
+              {errors.birth_region.message}
+            </span>
+          )}
         </div>
         <div className={styles.fieldWrapper}>
           <label htmlFor="birth_district"> Tug'ilgan Tumani </label>
@@ -296,6 +393,10 @@ const AddJuvenileForCenterForm: FC = () => {
             render={({ field }) => (
               <Select
                 {...field}
+                onChange={(newValue) => {
+                  field.onChange(newValue?.value);
+                }}
+                value={field?.label}
                 instanceId="birth_district"
                 placeholder={"Tumanni tanlang"}
                 classNamePrefix={"custom-select"}
@@ -303,6 +404,11 @@ const AddJuvenileForCenterForm: FC = () => {
               />
             )}
           />
+          {errors.birth_district && (
+            <span className={"error_message"}>
+              {errors.birth_district.message}
+            </span>
+          )}
         </div>
         <div className={styles.fieldWrapper}>
           <label htmlFor="pinfl">JSHSHIR</label>
@@ -312,14 +418,21 @@ const AddJuvenileForCenterForm: FC = () => {
             id="pinfl"
             {...register("pinfl", { required: true, max: 14, min: 14 })}
           />
+          {errors.pinfl && (
+            <span className={"error_message"}>{errors.pinfl.message}</span>
+          )}
         </div>
         <div className={styles.fieldWrapper}>
           <label htmlFor="gender"> Jinsi </label>
           <ButtonGroup
+            control={control}
+            name={"gender"}
+            rules={{ required: true }}
             options={btnGroupGenders}
-            setValue={setJuvenileGender}
-            selectedValue={juvenileGender}
           />
+          {errors.gender && (
+            <span className={"error_message"}>{errors.gender.message}</span>
+          )}
         </div>
         <div className={styles.fieldWrapper}>
           <label htmlFor="photo">Rasm</label>
@@ -344,6 +457,9 @@ const AddJuvenileForCenterForm: FC = () => {
               </section>
             )}
           />
+          {errors.photo && (
+            <span className={"error_message"}>{errors.photo.message}</span>
+          )}
         </div>
       </section>
       <h1 className={"text-3xl my-[12px]"}>Yashash manzil </h1>
@@ -356,6 +472,10 @@ const AddJuvenileForCenterForm: FC = () => {
             render={({ field }) => (
               <Select
                 {...field}
+                onChange={(newValue) => {
+                  field.onChange(newValue?.value);
+                }}
+                value={field?.label}
                 instanceId="birth_region"
                 placeholder={"Viloyatni tanlang"}
                 classNamePrefix={"custom-select"}
@@ -363,6 +483,11 @@ const AddJuvenileForCenterForm: FC = () => {
               />
             )}
           />
+          {errors.address_region && (
+            <span className={"error_message"}>
+              {errors.address_region.message}
+            </span>
+          )}
         </div>
         <div className={styles.fieldWrapper}>
           <label htmlFor="address_district"> Tumani </label>
@@ -375,6 +500,10 @@ const AddJuvenileForCenterForm: FC = () => {
             render={({ field }) => (
               <Select
                 {...field}
+                onChange={(newValue) => {
+                  field.onChange(newValue?.value);
+                }}
+                value={field?.label}
                 instanceId="address_district"
                 placeholder={"Tumanni tanlang"}
                 classNamePrefix={"custom-select"}
@@ -382,6 +511,11 @@ const AddJuvenileForCenterForm: FC = () => {
               />
             )}
           />
+          {errors.address_district && (
+            <span className={"error_message"}>
+              {errors.address_district.message}
+            </span>
+          )}
         </div>
         <div className={styles.fieldWrapper}>
           <label htmlFor="address"> Ko'cha,uy </label>
@@ -391,6 +525,9 @@ const AddJuvenileForCenterForm: FC = () => {
             id="address"
             {...register("address", { required: true })}
           />
+          {errors.address && (
+            <span className={"error_message"}>{errors.address.message}</span>
+          )}
         </div>
       </section>
       <h1 className={"text-3xl my-[12px]"}> Ta`lim</h1>
@@ -403,6 +540,10 @@ const AddJuvenileForCenterForm: FC = () => {
             render={({ field }) => (
               <Select
                 {...field}
+                onChange={(newValue) => {
+                  field.onChange(newValue?.value);
+                }}
+                value={field?.label}
                 instanceId="school_type"
                 placeholder={"Ta`lim muassasini turini tanlang"}
                 classNamePrefix={"custom-select"}
@@ -410,6 +551,11 @@ const AddJuvenileForCenterForm: FC = () => {
               />
             )}
           />
+          {errors.school_type && (
+            <span className={"error_message"}>
+              {errors.school_type.message}
+            </span>
+          )}
         </div>
         {!workingOrNotWorkingNotStudyingTypeSelected && (
           <>
@@ -421,6 +567,10 @@ const AddJuvenileForCenterForm: FC = () => {
                 render={({ field }) => (
                   <Select
                     {...field}
+                    onChange={(newValue) => {
+                      field.onChange(newValue?.value);
+                    }}
+                    value={field?.label}
                     instanceId="school_region"
                     placeholder={"Viloyatni tanlang"}
                     classNamePrefix={"custom-select"}
@@ -428,6 +578,11 @@ const AddJuvenileForCenterForm: FC = () => {
                   />
                 )}
               />
+              {errors.school_region && (
+                <span className={"error_message"}>
+                  {errors.school_region.message}
+                </span>
+              )}
             </div>
             <div className={styles.fieldWrapper}>
               <label htmlFor="school_district"> Tumani </label>
@@ -437,6 +592,10 @@ const AddJuvenileForCenterForm: FC = () => {
                 render={({ field }) => (
                   <Select
                     {...field}
+                    onChange={(newValue) => {
+                      field.onChange(newValue?.value);
+                    }}
+                    value={field?.label}
                     instanceId="school_district"
                     placeholder={"Tumanni tanlang"}
                     classNamePrefix={"custom-select"}
@@ -444,6 +603,11 @@ const AddJuvenileForCenterForm: FC = () => {
                   />
                 )}
               />
+              {errors.school_district && (
+                <span className={"error_message"}>
+                  {errors.school_district.message}
+                </span>
+              )}
             </div>
             <div className={styles.fieldWrapper}>
               <label htmlFor="school_name">Muassasa nomi (raqami)</label>
@@ -453,6 +617,11 @@ const AddJuvenileForCenterForm: FC = () => {
                 id="school_name"
                 {...register("school_name", { required: true })}
               />
+              {errors.school_name && (
+                <span className={"error_message"}>
+                  {errors.school_name.message}
+                </span>
+              )}
             </div>
           </>
         )}
@@ -472,6 +641,10 @@ const AddJuvenileForCenterForm: FC = () => {
             render={({ field }) => (
               <Select
                 {...field}
+                onChange={(newValue) => {
+                  field.onChange(newValue?.value);
+                }}
+                value={field?.label}
                 instanceId="marital_status"
                 placeholder={"Holatini tanlang"}
                 classNamePrefix={"custom-select"}
@@ -479,8 +652,16 @@ const AddJuvenileForCenterForm: FC = () => {
               />
             )}
           />
+          {errors.marital_status && (
+            <span className={"error_message"}>
+              {errors.marital_status.message}
+            </span>
+          )}
         </div>
-        {!hasNotAnybody && <AddParents maritalStatus={maritalStatus} />}
+        {!hasNotAnybody && <AddParents />}
+        {errors.parents && (
+          <span className={"error_message"}>{errors.parents.message}</span>
+        )}
       </section>
       <button className="" type="submit">
         Send
