@@ -14,7 +14,7 @@ import useMaritalStatuses from "../../hooks/apiHooks/useMaritalStatuses";
 import AddParents from "./AddParents/AddParents";
 import useAddJuvenileToCenterFormValidation from "../../hooks/validations/useAddJuvenileToCenterForm.validation";
 import * as yup from "yup";
-import { date, mixed, number, string } from "yup";
+import { array, date, mixed, number, object, string } from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   parentsAreRequiredValidationMessage,
@@ -80,22 +80,10 @@ const AddJuvenileForCenterForm: FC = () => {
         : mixed(),
       photo: mixed().required(requiredValidatorMessage),
       parents: hasNotAnybody
-        ? string()
-        : string().required(parentsAreRequiredValidationMessage),
+        ? array().of(object()).notRequired()
+        : array().of(object()).required(parentsAreRequiredValidationMessage),
     })
     .required();
-  // array()
-  //     .of(
-  //         object().shape({
-  //             last_name: string(),
-  //             first_name: string(),
-  //             father_name: string(),
-  //             pinfl: string(),
-  //             employment: string(),
-  //             parent_type: number(),
-  //             birth_date: string(),
-  //         })
-  //     )
   const {
     control,
     handleSubmit,
