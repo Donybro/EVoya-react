@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
 import { Other_infoService } from "../../services/info/other_info.service";
-import { IParentType } from "../../types/parent.type";
+import { IParentType } from "../../types/DTO/parent.type";
 
 export default function useParentTypes() {
   const { isLoading, data } = useQuery(

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { ENUMDocumentType } from "../../types/document.type";
-import { ENUMSchoolType } from "../../types/school.type";
-import { ENUMMaritalStatusType } from "../../types/marital-status.type";
+import { ENUMDocumentType } from "../../types/DTO/document.type";
+import { ENUMSchoolType } from "../../types/DTO/school.type";
+import { ENUMMaritalStatusType } from "../../types/DTO/marital-status.type";
 
 export default function useAddJuvenileToCenterFormValidation() {
   const [passportType, setPassportType] = useState();
   const [otherDocTypesSelected, setOtherDocTypesSelected] = useState(false);
+
   useEffect(() => {
     if (passportType === ENUMDocumentType.OTHER_DOCS_TYPE) {
       setOtherDocTypesSelected(true);

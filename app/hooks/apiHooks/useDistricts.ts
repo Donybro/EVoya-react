@@ -1,7 +1,7 @@
 import { useQuery } from "react-query";
 import { RegionsService } from "../../services/info/regions.service";
 import { useState } from "react";
-import { IDistrict } from "../../types/region-district.type";
+import { IDistrict } from "../../types/DTO/region-district.type";
 
 export default function useDistricts() {
   const [regionId, setRegionId] = useState<string>("");

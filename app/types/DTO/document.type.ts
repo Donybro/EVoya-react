@@ -4,5 +4,6 @@ export interface IDocumentType {
 }
 
 export enum ENUMDocumentType {
-  OTHER_DOCS_TYPE = 4,
+  OTHER_DOCS_TYPE = 5,
+  FOREIGN_TYPE = 4,
 }

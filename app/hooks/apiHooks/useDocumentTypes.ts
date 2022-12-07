@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { IDocumentType } from "../../types/document.type";
+import { IDocumentType } from "../../types/DTO/document.type";
 import { Other_infoService } from "../../services/info/other_info.service";
 
 export default function useDocumentTypes() {

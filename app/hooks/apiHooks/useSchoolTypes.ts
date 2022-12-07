@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
 import { Other_infoService } from "../../services/info/other_info.service";
-import { ISchoolType } from "../../types/school.type";
+import { ISchoolType } from "../../types/DTO/school.type";
 
 export default function useSchoolTypes() {
   const { data, isLoading } = useQuery(

@@ -3,7 +3,7 @@ import { Controller, useForm } from "react-hook-form";
 import useParentTypes from "../../../hooks/apiHooks/useParentTypes";
 import styles from "../AddJuvenileForCenterForm.module.scss";
 import Select from "react-select";
-import { IParent } from "../../../types/parent.type";
+import { IParent } from "../../../types/DTO/parent.type";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 

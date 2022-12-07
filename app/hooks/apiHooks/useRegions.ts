@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
 import { RegionsService } from "../../services/info/regions.service";
-import { IRegion } from "../../types/region-district.type";
+import { IRegion } from "../../types/DTO/region-district.type";
 
 export default function useRegions() {
   const { data, isLoading } = useQuery(

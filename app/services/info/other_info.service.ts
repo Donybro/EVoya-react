@@ -13,4 +13,7 @@ export const Other_infoService = {
   async getParentTypes() {
     return api.get("/api/juvenile/juveniles/parent_types/");
   },
+  async getCountriesList() {
+    return api.get('api/info/countries/');
+  },
 };
